@@ -2,6 +2,7 @@
 
 #include "entities/Entity.hpp"
 #include <functional>
+#include <cstdint>
 
 namespace riftbound {
 

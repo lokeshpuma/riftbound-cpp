@@ -3,6 +3,7 @@
 #include "entities/Patroller.hpp"
 #include "entities/Boss.hpp"
 #include <iostream>
+#include <cstdint>
 
 extern int g_totalTests;
 extern int g_passedTests;

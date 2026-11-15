@@ -4,6 +4,7 @@
 #include "core/ParticleSystem.hpp"
 #include "core/AssetManager.hpp"
 #include <cmath>
+#include <cstdint>
 
 namespace riftbound {
 

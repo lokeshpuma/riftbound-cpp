@@ -3,6 +3,7 @@
 #include "combat/Weapon.hpp"
 #include "physics/AABB.hpp"
 #include <unordered_set>
+#include <cstdint>
 
 namespace riftbound {
 

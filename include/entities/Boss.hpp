@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entities/Enemy.hpp"
+#include <cstdint>
 
 namespace riftbound {
 

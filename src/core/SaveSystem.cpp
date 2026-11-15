@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <string>
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>

@@ -1,5 +1,6 @@
 #include "physics/AABB.hpp"
 #include <cmath>
+#include <algorithm>
 
 namespace riftbound {
 

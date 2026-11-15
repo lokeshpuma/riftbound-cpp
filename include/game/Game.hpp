@@ -10,6 +10,7 @@
 #include "ui/Menu.hpp"
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace riftbound {
 

@@ -1,5 +1,6 @@
 #include "entities/Entity.hpp"
 #include <algorithm>
+#include <cstdint>
 
 namespace riftbound {
 

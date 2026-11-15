@@ -1,6 +1,8 @@
 #include "level/Level.hpp"
 #include "core/AssetManager.hpp"
 #include <cmath>
+#include <memory>
+#include <string>
 
 namespace riftbound {
 

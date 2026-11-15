@@ -8,6 +8,8 @@
 #include "level/LevelManager.hpp"
 #include <iostream>
 #include <algorithm>
+#include <memory>
+#include <string>
 
 namespace riftbound {
 

@@ -4,6 +4,7 @@
 #include "physics/AABB.hpp"
 #include "combat/DamageInfo.hpp"
 #include <raylib.h>
+#include <cstdint>
 
 namespace riftbound {
 

@@ -1,6 +1,7 @@
 #include "ui/UIElements.hpp"
 #include <algorithm>
 #include <cmath>
+#include <string>
 
 namespace riftbound {
 

@@ -2,6 +2,8 @@
 #include "core/Config.hpp"
 #include "core/SaveSystem.hpp"
 #include <string>
+#include <memory>
+#include <vector>
 
 namespace riftbound {
 

@@ -4,6 +4,8 @@
 #include "entities/Chaser.hpp"
 #include "entities/Boss.hpp"
 #include <iostream>
+#include <memory>
+#include <string>
 
 namespace riftbound {
 
