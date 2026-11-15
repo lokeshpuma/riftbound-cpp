@@ -45,7 +45,8 @@ jobs:
             libxext-dev \
             libxfixes-dev \
             libwayland-dev \
-            libxkbcommon-dev
+            libxkbcommon-dev \
+            libraylib-dev || true
 
       - name: Configure CMake
         run: |
@@ -53,7 +54,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release -j 4 --verbose
+          set -o pipefail
+          cmake --build build --config Release -j 2 2>&1 | tee build.log
 
       - name: Run Unit Tests
         run: |
