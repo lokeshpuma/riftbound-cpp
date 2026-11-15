@@ -224,63 +224,72 @@ std::unique_ptr<Level> LevelManager::BuildLevel4() {
     // 80 x 24 tiles (1920 x 576 px) - Skyward Ramparts
     auto lvl = std::make_unique<Level>(4, "Skyward Ramparts", 80, 24);
     lvl->SetSpawnPoint(Vector2{ 72.0f, 420.0f });
-    lvl->SetExitTrigger(AABB{ 1800.0f, 160.0f, 36.0f, 60.0f });
+    lvl->SetExitTrigger(AABB{ 1800.0f, 108.0f, 36.0f, 60.0f });
 
-    // Castle towers and battlements with deep chasms
+    // Lower rampart floor at y = 20
     for (int x = 0; x <= 16; ++x) {
         lvl->SetTile(x, 20, TileType::SolidBrick);
         lvl->SetTile(x, 21, TileType::SolidStone);
     }
 
-    // Tower 1
-    for (int y = 14; y <= 19; ++y) {
+    // Stepping platforms to climb Tower 1 easily
+    for (int x = 8; x <= 11; ++x) lvl->SetTile(x, 18, TileType::OneWayPlatform);
+    for (int x = 12; x <= 15; ++x) lvl->SetTile(x, 16, TileType::OneWayPlatform);
+
+    // Tower 1 upper walkway at y = 14
+    for (int x = 16; x <= 26; ++x) {
+        lvl->SetTile(x, 14, TileType::SolidBrick);
+        lvl->SetTile(x, 15, TileType::SolidStone);
+    }
+    // Tower 1 foundation below y = 15
+    for (int y = 16; y <= 21; ++y) {
         lvl->SetTile(16, y, TileType::SolidStone);
     }
-    for (int x = 17; x <= 26; ++x) {
-        lvl->SetTile(x, 14, TileType::SolidBrick);
-    }
 
-    // Floating sky bridges
+    // Floating sky bridges (diff <= 2 tiles each, very smooth jumping!)
     for (int x = 28; x <= 33; ++x) lvl->SetTile(x, 12, TileType::OneWayPlatform);
     for (int x = 36; x <= 42; ++x) lvl->SetTile(x, 10, TileType::SolidBrick);
-    for (int x = 44; x <= 50; ++x) lvl->SetTile(x, 8, TileType::OneWayPlatform);
+    for (int x = 44; x <= 49; ++x) lvl->SetTile(x, 9, TileType::OneWayPlatform);
 
-    // Castle Citadel wall
-    for (int y = 8; y <= 21; ++y) {
-        lvl->SetTile(52, y, TileType::SolidStone);
-    }
-    for (int x = 53; x <= 65; ++x) {
-        lvl->SetTile(x, 16, TileType::SolidBrick);
-        lvl->SetTile(x, 17, TileType::SolidStone);
+    // Citadel ascent steps
+    for (int x = 51; x <= 53; ++x) lvl->SetTile(x, 8, TileType::OneWayPlatform);
+
+    // Citadel rampart walkway at y = 7
+    for (int x = 54; x <= 64; ++x) {
+        lvl->SetTile(x, 7, TileType::SolidBrick);
+        lvl->SetTile(x, 8, TileType::SolidStone);
     }
 
-    // High Sky Bastion
+    // Intermediate step to Sky Bastion
+    for (int x = 65; x <= 67; ++x) lvl->SetTile(x, 7, TileType::OneWayPlatform);
+
+    // High Sky Bastion at y = 7
     for (int x = 68; x <= 79; ++x) {
-        lvl->SetTile(x, 10, TileType::SolidBrick);
-        lvl->SetTile(x, 11, TileType::SolidStone);
+        lvl->SetTile(x, 7, TileType::SolidBrick);
+        lvl->SetTile(x, 8, TileType::SolidStone);
     }
 
     // Spike hazard under tower drops
-    lvl->AddHazard(AABB{ 28.0f * TILE_SIZE, 23.0f * TILE_SIZE, 24.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 40.0f);
+    lvl->AddHazard(AABB{ 27.0f * TILE_SIZE, 23.0f * TILE_SIZE, 25.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 40.0f);
 
-    // Checkpoints
-    lvl->AddCheckpoint(Vector2{ 480.0f, 300.0f });
-    lvl->AddCheckpoint(Vector2{ 1320.0f, 350.0f });
+    // Checkpoints (resting properly on top of floors)
+    lvl->AddCheckpoint(Vector2{ 500.0f, 316.0f });  // On Tower 1 (y=14 -> px 336, cp y=316)
+    lvl->AddCheckpoint(Vector2{ 1420.0f, 148.0f }); // On Citadel (y=7 -> px 168, cp y=148)
 
     // Collectibles
     lvl->AddCollectible(Vector2{ 220.0f, 440.0f }, CollectibleType::Health);
-    lvl->AddCollectible(Vector2{ 500.0f, 250.0f }, CollectibleType::Energy);
-    lvl->AddCollectible(Vector2{ 900.0f, 180.0f }, CollectibleType::EmberCore);
-    lvl->AddCollectible(Vector2{ 1100.0f, 140.0f }, CollectibleType::Health);
-    lvl->AddCollectible(Vector2{ 1650.0f, 210.0f }, CollectibleType::EmberCore);
+    lvl->AddCollectible(Vector2{ 300.0f, 390.0f }, CollectibleType::Energy);
+    lvl->AddCollectible(Vector2{ 720.0f, 250.0f }, CollectibleType::EmberCore);
+    lvl->AddCollectible(Vector2{ 960.0f, 200.0f }, CollectibleType::Health);
+    lvl->AddCollectible(Vector2{ 1500.0f, 130.0f }, CollectibleType::EmberCore);
 
     // Enemies
-    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 320.0f, 300.0f }, 240.0f, 400.0f));
-    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 680.0f, 200.0f }, 320.0f));
+    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 260.0f, 460.0f }, 160.0f, 360.0f));
+    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 480.0f, 316.0f }, 400.0f, 600.0f));
+    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 720.0f, 190.0f }, 300.0f));
     lvl->AddEnemy(std::make_unique<Chaser>(Vector2{ 960.0f, 200.0f }, 240.0f));
-    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 1200.0f, 130.0f }, 340.0f));
-    lvl->AddEnemy(std::make_unique<Chaser>(Vector2{ 1450.0f, 350.0f }, 240.0f));
-    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 1720.0f, 210.0f }, 1640.0f, 1840.0f));
+    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 1240.0f, 120.0f }, 320.0f));
+    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 1700.0f, 148.0f }, 1640.0f, 1840.0f));
 
     return lvl;
 }
@@ -329,10 +338,10 @@ std::unique_ptr<Level> LevelManager::BuildLevel5() {
         lvl->SetTile(x, 19, TileType::SolidStone);
     }
 
-    // Elevated tactical one-way platforms inside arena
-    for (int x = 46; x <= 50; ++x) lvl->SetTile(x, 12, TileType::OneWayPlatform);
-    for (int x = 66; x <= 70; ++x) lvl->SetTile(x, 12, TileType::OneWayPlatform);
-    for (int x = 55; x <= 61; ++x) lvl->SetTile(x, 9, TileType::OneWayPlatform);
+    // Elevated tactical one-way platforms inside arena (easily jumpable from floor at y=16)
+    for (int x = 46; x <= 50; ++x) lvl->SetTile(x, 13, TileType::OneWayPlatform);
+    for (int x = 66; x <= 70; ++x) lvl->SetTile(x, 13, TileType::OneWayPlatform);
+    for (int x = 55; x <= 61; ++x) lvl->SetTile(x, 10, TileType::OneWayPlatform);
 
     // Collectibles
     lvl->AddCollectible(Vector2{ 240.0f, 350.0f }, CollectibleType::Health);

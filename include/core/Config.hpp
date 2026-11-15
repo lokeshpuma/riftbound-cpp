@@ -25,8 +25,8 @@ struct PlayerConfig {
     float deceleration = 1600.0f;
     float airAcceleration = 900.0f;
     float airDeceleration = 600.0f;
-    float jumpVelocity = -380.0f;
-    float minJumpVelocity = -150.0f; // For variable jump height on early release
+    float jumpVelocity = -400.0f;
+    float minJumpVelocity = -160.0f; // For variable jump height on early release
     float coyoteTimeDuration = 0.12f;
     float jumpBufferDuration = 0.12f;
     float maxHealth = 100.0f;
