@@ -44,9 +44,9 @@ jobs:
             libxinerama-dev \
             libxext-dev \
             libxfixes-dev \
+            libxxf86vm-dev \
             libwayland-dev \
-            libxkbcommon-dev \
-            libraylib-dev || true
+            libxkbcommon-dev
 
       - name: Configure CMake
         run: |
