@@ -64,4 +64,16 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          ctest --test-dir build -C Release --output-on-failure
+          TEST_BIN=$(find build -type f -name "riftbound_tests" | head -n 1)
+          echo "Found test binary at: $TEST_BIN"
+          if [ -z "$TEST_BIN" ]; then
+            echo "::error::Could not find riftbound_tests binary"
+            find build -ls
+            exit 1
+          fi
+          chmod +x "$TEST_BIN"
+          if ! "$TEST_BIN" 2>&1 | tee test.log; then
+            ERR_MSG=$(grep -iE "FAILED:" test.log | tr '\n' ' | ')
+            echo "::error::Test Failures: $ERR_MSG"
+            exit 1
+          fi
