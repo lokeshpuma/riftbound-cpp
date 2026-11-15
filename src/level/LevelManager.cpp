@@ -20,7 +20,9 @@ std::string LevelManager::GetLevelName(int levelIndex) const {
     switch (levelIndex) {
         case 1: return "Level 1: Awakening Ruins";
         case 2: return "Level 2: The Sunken Spire";
-        case 3: return "Level 3: The Ashen Crucible";
+        case 3: return "Level 3: Molten Catacombs";
+        case 4: return "Level 4: Skyward Ramparts";
+        case 5: return "Level 5: The Ashen Crucible";
         default: return "Unknown Level";
     }
 }
@@ -31,6 +33,8 @@ std::unique_ptr<Level> LevelManager::LoadLevel(int levelIndex) {
         case 1: return BuildLevel1();
         case 2: return BuildLevel2();
         case 3: return BuildLevel3();
+        case 4: return BuildLevel4();
+        case 5: return BuildLevel5();
         default: return BuildLevel1();
     }
 }
@@ -151,9 +155,139 @@ std::unique_ptr<Level> LevelManager::BuildLevel2() {
     return lvl;
 }
 
-std::unique_ptr<Level> BuildLevel3() {
-    // 80 x 20 tiles (1920 x 480 px) - The Boss Level!
-    auto lvl = std::make_unique<Level>(3, "The Ashen Crucible", 80, 20);
+std::unique_ptr<Level> LevelManager::BuildLevel3() {
+    // 70 x 20 tiles (1680 x 480 px) - Molten Catacombs
+    auto lvl = std::make_unique<Level>(3, "Molten Catacombs", 70, 20);
+    lvl->SetSpawnPoint(Vector2{ 80.0f, 320.0f });
+    lvl->SetExitTrigger(AABB{ 1560.0f, 260.0f, 36.0f, 60.0f });
+
+    // Lava hazard floors with stepping pillars
+    for (int x = 0; x < 70; ++x) {
+        if ((x >= 8 && x <= 14) || (x >= 24 && x <= 32) || (x >= 44 && x <= 54)) {
+            lvl->SetTile(x, 19, TileType::HazardLava);
+            continue;
+        }
+        lvl->SetTile(x, 17, TileType::SolidStone);
+        lvl->SetTile(x, 18, TileType::SolidStone);
+        lvl->SetTile(x, 19, TileType::SolidStone);
+    }
+
+    // Explicit hazard areas for lava
+    lvl->AddHazard(AABB{ 8.0f * TILE_SIZE, 19.0f * TILE_SIZE, 7.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 35.0f);
+    lvl->AddHazard(AABB{ 24.0f * TILE_SIZE, 19.0f * TILE_SIZE, 9.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 35.0f);
+    lvl->AddHazard(AABB{ 44.0f * TILE_SIZE, 19.0f * TILE_SIZE, 11.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 35.0f);
+
+    // Stepping stone platforms above lava
+    for (int x = 9; x <= 11; ++x) lvl->SetTile(x, 14, TileType::SolidBrick);
+    for (int x = 12; x <= 14; ++x) lvl->SetTile(x, 11, TileType::OneWayPlatform);
+
+    for (int x = 25; x <= 27; ++x) lvl->SetTile(x, 14, TileType::OneWayPlatform);
+    for (int x = 29; x <= 31; ++x) lvl->SetTile(x, 12, TileType::SolidBrick);
+
+    // Mid-section cavern
+    for (int x = 33; x <= 43; ++x) {
+        lvl->SetTile(x, 14, TileType::SolidBrick);
+        lvl->SetTile(x, 15, TileType::SolidStone);
+    }
+
+    // High ledges over final lava stretch
+    for (int x = 45; x <= 48; ++x) lvl->SetTile(x, 12, TileType::OneWayPlatform);
+    for (int x = 50; x <= 53; ++x) lvl->SetTile(x, 10, TileType::OneWayPlatform);
+
+    // Exit platform
+    for (int x = 56; x <= 69; ++x) {
+        lvl->SetTile(x, 14, TileType::SolidBrick);
+        lvl->SetTile(x, 15, TileType::SolidStone);
+    }
+
+    // Checkpoints
+    lvl->AddCheckpoint(Vector2{ 420.0f, 370.0f });
+    lvl->AddCheckpoint(Vector2{ 960.0f, 300.0f });
+
+    // Collectibles
+    lvl->AddCollectible(Vector2{ 280.0f, 290.0f }, CollectibleType::Health);
+    lvl->AddCollectible(Vector2{ 720.0f, 250.0f }, CollectibleType::Energy);
+    lvl->AddCollectible(Vector2{ 1160.0f, 200.0f }, CollectibleType::EmberCore);
+    lvl->AddCollectible(Vector2{ 1460.0f, 290.0f }, CollectibleType::EmberCore);
+
+    // Enemies
+    lvl->AddEnemy(std::make_unique<Chaser>(Vector2{ 500.0f, 370.0f }, 220.0f));
+    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 750.0f, 220.0f }, 300.0f));
+    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 920.0f, 300.0f }, 800.0f, 1020.0f));
+    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 1250.0f, 180.0f }, 320.0f));
+    lvl->AddEnemy(std::make_unique<Chaser>(Vector2{ 1420.0f, 300.0f }, 240.0f));
+
+    return lvl;
+}
+
+std::unique_ptr<Level> LevelManager::BuildLevel4() {
+    // 80 x 24 tiles (1920 x 576 px) - Skyward Ramparts
+    auto lvl = std::make_unique<Level>(4, "Skyward Ramparts", 80, 24);
+    lvl->SetSpawnPoint(Vector2{ 72.0f, 420.0f });
+    lvl->SetExitTrigger(AABB{ 1800.0f, 160.0f, 36.0f, 60.0f });
+
+    // Castle towers and battlements with deep chasms
+    for (int x = 0; x <= 16; ++x) {
+        lvl->SetTile(x, 20, TileType::SolidBrick);
+        lvl->SetTile(x, 21, TileType::SolidStone);
+    }
+
+    // Tower 1
+    for (int y = 14; y <= 19; ++y) {
+        lvl->SetTile(16, y, TileType::SolidStone);
+    }
+    for (int x = 17; x <= 26; ++x) {
+        lvl->SetTile(x, 14, TileType::SolidBrick);
+    }
+
+    // Floating sky bridges
+    for (int x = 28; x <= 33; ++x) lvl->SetTile(x, 12, TileType::OneWayPlatform);
+    for (int x = 36; x <= 42; ++x) lvl->SetTile(x, 10, TileType::SolidBrick);
+    for (int x = 44; x <= 50; ++x) lvl->SetTile(x, 8, TileType::OneWayPlatform);
+
+    // Castle Citadel wall
+    for (int y = 8; y <= 21; ++y) {
+        lvl->SetTile(52, y, TileType::SolidStone);
+    }
+    for (int x = 53; x <= 65; ++x) {
+        lvl->SetTile(x, 16, TileType::SolidBrick);
+        lvl->SetTile(x, 17, TileType::SolidStone);
+    }
+
+    // High Sky Bastion
+    for (int x = 68; x <= 79; ++x) {
+        lvl->SetTile(x, 10, TileType::SolidBrick);
+        lvl->SetTile(x, 11, TileType::SolidStone);
+    }
+
+    // Spike hazard under tower drops
+    lvl->AddHazard(AABB{ 28.0f * TILE_SIZE, 23.0f * TILE_SIZE, 24.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 40.0f);
+
+    // Checkpoints
+    lvl->AddCheckpoint(Vector2{ 480.0f, 300.0f });
+    lvl->AddCheckpoint(Vector2{ 1320.0f, 350.0f });
+
+    // Collectibles
+    lvl->AddCollectible(Vector2{ 220.0f, 440.0f }, CollectibleType::Health);
+    lvl->AddCollectible(Vector2{ 500.0f, 250.0f }, CollectibleType::Energy);
+    lvl->AddCollectible(Vector2{ 900.0f, 180.0f }, CollectibleType::EmberCore);
+    lvl->AddCollectible(Vector2{ 1100.0f, 140.0f }, CollectibleType::Health);
+    lvl->AddCollectible(Vector2{ 1650.0f, 210.0f }, CollectibleType::EmberCore);
+
+    // Enemies
+    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 320.0f, 300.0f }, 240.0f, 400.0f));
+    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 680.0f, 200.0f }, 320.0f));
+    lvl->AddEnemy(std::make_unique<Chaser>(Vector2{ 960.0f, 200.0f }, 240.0f));
+    lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 1200.0f, 130.0f }, 340.0f));
+    lvl->AddEnemy(std::make_unique<Chaser>(Vector2{ 1450.0f, 350.0f }, 240.0f));
+    lvl->AddEnemy(std::make_unique<Patroller>(Vector2{ 1720.0f, 210.0f }, 1640.0f, 1840.0f));
+
+    return lvl;
+}
+
+std::unique_ptr<Level> LevelManager::BuildLevel5() {
+    // 80 x 20 tiles (1920 x 480 px) - The Ashen Crucible (THE BOSS LEVEL!)
+    auto lvl = std::make_unique<Level>(5, "The Ashen Crucible", 80, 20);
     lvl->SetSpawnPoint(Vector2{ 80.0f, 350.0f });
     lvl->SetExitTrigger(AABB{ 1820.0f, 330.0f, 40.0f, 60.0f });
 
@@ -167,6 +301,8 @@ std::unique_ptr<Level> BuildLevel3() {
     for (int x = 15; x <= 22; ++x) {
         lvl->SetTile(x, 19, TileType::HazardLava);
     }
+    lvl->AddHazard(AABB{ 15.0f * TILE_SIZE, 19.0f * TILE_SIZE, 8.0f * TILE_SIZE, static_cast<float>(TILE_SIZE) }, 40.0f);
+
     // Stepping stones over lava
     for (int x = 16; x <= 18; ++x) lvl->SetTile(x, 14, TileType::OneWayPlatform);
     for (int x = 20; x <= 22; ++x) lvl->SetTile(x, 12, TileType::OneWayPlatform);
@@ -185,8 +321,7 @@ std::unique_ptr<Level> BuildLevel3() {
         lvl->SetTile(39, y, TileType::SolidStone);
     }
 
-    // GRAND BOSS ARENA (x = 42 to 76)
-    // Solid arena floor
+    // GRAND BOSS ARENA (x = 40 to 79)
     for (int x = 40; x <= 79; ++x) {
         lvl->SetTile(x, 16, TileType::SolidBrick);
         lvl->SetTile(x, 17, TileType::SolidStone);
@@ -212,16 +347,11 @@ std::unique_ptr<Level> BuildLevel3() {
     lvl->AddEnemy(std::make_unique<RangedSentry>(Vector2{ 700.0f, 280.0f }, 300.0f));
 
     // THE ASHEN WARDEN BOSS
-    // Arena bounds: left = 41 * 24 = 984, right = 78 * 24 = 1872
     Vector2 bossCenter = { 1450.0f, 340.0f };
     auto boss = std::make_unique<AshenWarden>(bossCenter, 1000.0f, 1820.0f);
     lvl->SetBoss(std::move(boss));
 
     return lvl;
-}
-
-std::unique_ptr<Level> LevelManager::BuildLevel3() {
-    return riftbound::BuildLevel3();
 }
 
 } // namespace riftbound

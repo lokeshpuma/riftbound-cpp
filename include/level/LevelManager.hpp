@@ -16,7 +16,7 @@ public:
     int GetCurrentLevelIndex() const { return m_currentLevelIndex; }
     void SetCurrentLevelIndex(int idx) { m_currentLevelIndex = idx; }
 
-    int GetTotalLevels() const { return 3; }
+    int GetTotalLevels() const { return 5; }
     std::string GetLevelName(int levelIndex) const;
 
 private:
@@ -27,6 +27,8 @@ private:
     std::unique_ptr<Level> BuildLevel1();
     std::unique_ptr<Level> BuildLevel2();
     std::unique_ptr<Level> BuildLevel3();
+    std::unique_ptr<Level> BuildLevel4();
+    std::unique_ptr<Level> BuildLevel5();
 };
 
 } // namespace riftbound

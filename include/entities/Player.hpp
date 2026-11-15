@@ -41,6 +41,7 @@ public:
     // Stats & Inventory
     void Heal(float amount);
     void RestoreEnergy(float amount);
+    void Kill();
     float GetEnergy() const { return m_energy; }
     float GetMaxEnergy() const { return m_maxEnergy; }
     WeaponType GetCurrentWeaponType() const { return m_currentWeapon; }

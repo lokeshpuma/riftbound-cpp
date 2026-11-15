@@ -95,8 +95,15 @@ The game includes 3 distinct enemy archetypes:
 3. **Chaser:** Sleeps until the player enters its aggro radius ($190\text{px}$), charges aggressively, and leaps over obstacles to attack.
 - **Loot Table:** Enemies have a drop table rewarding Health potions, Energy crystals, or Ember Cores on death.
 
+### 5 Handcrafted Levels
+- **Level 1 — Awakening Ruins:** Platforming tutorial, patrollers, pickups, and checkpoint.
+- **Level 2 — The Sunken Spire:** Vertical ascension, spike hazard pits, one-way ledges, ranged sentries, and chasers.
+- **Level 3 — Molten Catacombs:** Subterranean lava caverns, falling platform steps, timing hazards, chaser packs, and sentries.
+- **Level 4 — The Skyward Ramparts:** High-altitude citadel with floating platforms, deep chasms, and aggressive sniper sentries.
+- **Level 5 — The Ashen Crucible:** Advanced hazard gauntlet culminating in the locked Ashen Warden boss encounter.
+
 ### Boss Encounters: The Ashen Warden
-Level 3 culminates in a locked arena encounter against **The Ashen Warden**:
+Level 5 culminates in a locked arena encounter against **The Ashen Warden**:
 - **Arena Gate:** Crossing into the arena triggers a boundary lockdown preventing retreat.
 - **Phase 1 (100%–66% HP):** High-altitude ground slam with a visible telegraph marker on the floor, followed by a meteoric crash and bilateral ground shockwaves.
 - **Phase 2 (66%–33% HP):** Multi-shot fiery spread volleys (3 to 5 projectiles).

@@ -48,7 +48,7 @@ void RunProgressionTests() {
     {
         auto& mgr = LevelManager::Instance();
         mgr.Init();
-        EXPECT_TRUE(mgr.GetTotalLevels() == 3);
+        EXPECT_TRUE(mgr.GetTotalLevels() == 5);
 
         auto lvl1 = mgr.LoadLevel(1);
         EXPECT_TRUE(lvl1 != nullptr);
@@ -66,8 +66,20 @@ void RunProgressionTests() {
         auto lvl3 = mgr.LoadLevel(3);
         EXPECT_TRUE(lvl3 != nullptr);
         EXPECT_TRUE(lvl3->GetIndex() == 3);
-        EXPECT_TRUE(lvl3->GetBoss() != nullptr);
-        EXPECT_TRUE(lvl3->GetBoss()->GetMaxHealth() >= 350.0f);
+        EXPECT_TRUE(lvl3->GetHazards().size() >= 1);
+        EXPECT_TRUE(lvl3->GetEnemies().size() >= 4);
+
+        auto lvl4 = mgr.LoadLevel(4);
+        EXPECT_TRUE(lvl4 != nullptr);
+        EXPECT_TRUE(lvl4->GetIndex() == 4);
+        EXPECT_TRUE(lvl4->GetHazards().size() >= 1);
+        EXPECT_TRUE(lvl4->GetEnemies().size() >= 4);
+
+        auto lvl5 = mgr.LoadLevel(5);
+        EXPECT_TRUE(lvl5 != nullptr);
+        EXPECT_TRUE(lvl5->GetIndex() == 5);
+        EXPECT_TRUE(lvl5->GetBoss() != nullptr);
+        EXPECT_TRUE(lvl5->GetBoss()->GetMaxHealth() >= 350.0f);
     }
 
     std::cout << "[Progression] Tests completed.\n";

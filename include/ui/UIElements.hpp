@@ -15,6 +15,7 @@ public:
 
     void SetSelected(bool sel) { m_isSelected = sel; }
     bool IsSelected() const { return m_isSelected; }
+    Rectangle GetBounds() const { return m_bounds; }
 
 private:
     Rectangle m_bounds;

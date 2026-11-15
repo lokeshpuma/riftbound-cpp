@@ -47,6 +47,12 @@ void Player::RestoreEnergy(float amount) {
     m_energy = std::min(m_maxEnergy, m_energy + amount);
 }
 
+void Player::Kill() {
+    m_health = 0.0f;
+    m_isAlive = false;
+    m_animState = PlayerAnimState::Dead;
+}
+
 Weapon* Player::GetActiveWeapon() {
     if (m_currentWeapon == WeaponType::EmberBlade) {
         return &m_blade;
@@ -255,7 +261,21 @@ void Player::Update(float dt, PhysicsWorld& world) {
 }
 
 void Player::Draw() const {
-    if (!m_isAlive) return;
+    if (!m_isAlive) {
+        // Draw defeated hero body resting on ground with embers
+        Texture2D tex = AssetManager::Instance().GetTexture(TextureId::Player);
+        float dirX = (m_facing == Direction::Left) ? -1.0f : 1.0f;
+        if (tex.id > 0) {
+            Rectangle src = { 0, 0, (dirX < 0) ? -32.0f : 32.0f, 32.0f };
+            Rectangle dest = { m_position.x, m_position.y + 6.0f, 32.0f, 32.0f };
+            Vector2 origin = { 16.0f, 16.0f };
+            DrawTexturePro(tex, src, dest, origin, 90.0f * dirX, Color{ 180, 60, 60, 220 });
+        } else {
+            Rectangle r = { m_position.x - m_size.y * 0.5f, m_position.y + m_size.y * 0.2f, m_size.y, m_size.x * 0.8f };
+            DrawRectangleRec(r, Color{ 140, 40, 40, 220 });
+        }
+        return;
+    }
 
     // Invulnerability blink: modulate alpha/visibility every few frames
     if (m_invulnTimer > 0.0f) {

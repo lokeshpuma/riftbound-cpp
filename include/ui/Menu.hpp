@@ -23,6 +23,8 @@ public:
 
 private:
     ActionCallback m_callback;
+    int m_selectedIndex = 0;
+    GameStateId m_lastState = GameStateId::MainMenu;
 
     // Buttons for various screens
     std::vector<UIButton> m_mainMenuButtons;

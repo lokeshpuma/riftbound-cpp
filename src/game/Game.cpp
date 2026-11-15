@@ -188,11 +188,17 @@ void Game::Update(float dt) {
                 return;
             }
 
-            if (m_player && m_player->IsAlive()) {
-                m_player->HandleInput();
-                m_player->Update(dt, m_physicsWorld);
+            if (m_player) {
+                if (m_player->IsAlive()) {
+                    m_player->HandleInput();
+                    m_player->Update(dt, m_physicsWorld);
+                }
 
-                if (!m_player->IsAlive()) {
+                // Check death or fall into bottom void pit
+                if (!m_player->IsAlive() || (m_currentLevel && m_player->GetPosition().y > m_currentLevel->GetPixelHeight() + 24.0f)) {
+                    if (m_player->IsAlive()) {
+                        m_player->Kill();
+                    }
                     ChangeState(GameStateId::GameOver);
                     return;
                 }
@@ -216,6 +222,12 @@ void Game::Update(float dt) {
             UpdateCombat(dt);
             UpdateProjectiles(dt);
             CheckTriggers();
+
+            // Verify player alive status after combat/hazard resolution
+            if (m_player && !m_player->IsAlive()) {
+                ChangeState(GameStateId::GameOver);
+                return;
+            }
 
             if (m_player && m_cameraController) {
                 m_cameraController->Update(dt, m_player->GetPosition(), m_player->GetFacingDirection());
@@ -417,6 +429,10 @@ void Game::CheckTriggers() {
             d.knockback = { 0.0f, -220.0f };
             d.sourcePosition = m_player->GetPosition();
             m_player->TakeDamage(d);
+            if (!m_player->IsAlive()) {
+                ChangeState(GameStateId::GameOver);
+                return;
+            }
         }
     }
 

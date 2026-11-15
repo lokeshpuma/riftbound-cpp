@@ -26,10 +26,12 @@ void MenuManager::InitMainMenu() {
 
 void MenuManager::InitLevelSelect() {
     m_levelSelectButtons.clear();
-    m_levelSelectButtons.emplace_back(Rectangle{ 220, 130, 200, 32 }, "LEVEL 1: RUINS");
-    m_levelSelectButtons.emplace_back(Rectangle{ 220, 172, 200, 32 }, "LEVEL 2: SPIRE");
-    m_levelSelectButtons.emplace_back(Rectangle{ 220, 214, 200, 32 }, "LEVEL 3: CRUCIBLE (BOSS)");
-    m_levelSelectButtons.emplace_back(Rectangle{ 220, 268, 200, 32 }, "BACK TO MENU");
+    m_levelSelectButtons.emplace_back(Rectangle{ 210, 90, 220, 26 }, "LEVEL 1: RUINS");
+    m_levelSelectButtons.emplace_back(Rectangle{ 210, 124, 220, 26 }, "LEVEL 2: SPIRE");
+    m_levelSelectButtons.emplace_back(Rectangle{ 210, 158, 220, 26 }, "LEVEL 3: CATACOMBS");
+    m_levelSelectButtons.emplace_back(Rectangle{ 210, 192, 220, 26 }, "LEVEL 4: RAMPARTS");
+    m_levelSelectButtons.emplace_back(Rectangle{ 210, 226, 220, 26 }, "LEVEL 5: CRUCIBLE (BOSS)");
+    m_levelSelectButtons.emplace_back(Rectangle{ 210, 270, 220, 28 }, "BACK TO MENU");
 }
 
 void MenuManager::InitPauseMenu() {
@@ -74,62 +76,80 @@ void MenuManager::InitSettings() {
 void MenuManager::Update(GameStateId state, Vector2 mousePos) {
     if (!m_callback) return;
 
-    if (state == GameStateId::MainMenu) {
-        for (size_t i = 0; i < m_mainMenuButtons.size(); ++i) {
-            m_mainMenuButtons[i].Update(mousePos);
-            if (m_mainMenuButtons[i].IsClicked()) {
-                if (i == 0) m_callback("play", 1);
-                else if (i == 1) m_callback("level_select", 0);
-                else if (i == 2) m_callback("settings", 0);
-                else if (i == 3) m_callback("quit", 0);
+    if (state != m_lastState) {
+        m_selectedIndex = 0;
+        m_lastState = state;
+    }
+
+    bool keyUp = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
+    bool keyDown = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
+    bool keySelect = IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_E);
+
+    auto updateButtonGroup = [&](std::vector<UIButton>& buttons, auto onAction) {
+        if (buttons.empty()) return;
+
+        if (keyDown) {
+            m_selectedIndex = (m_selectedIndex + 1) % buttons.size();
+        } else if (keyUp) {
+            m_selectedIndex = (m_selectedIndex - 1 + buttons.size()) % buttons.size();
+        }
+
+        for (size_t i = 0; i < buttons.size(); ++i) {
+            buttons[i].Update(mousePos);
+            if (CheckCollisionPointRec(mousePos, buttons[i].GetBounds())) {
+                m_selectedIndex = static_cast<int>(i);
+            }
+            buttons[i].SetSelected(static_cast<int>(i) == m_selectedIndex);
+
+            if (buttons[i].IsClicked() || (static_cast<int>(i) == m_selectedIndex && keySelect)) {
+                onAction(i);
+                return;
             }
         }
+    };
+
+    if (state == GameStateId::MainMenu) {
+        updateButtonGroup(m_mainMenuButtons, [this](size_t i) {
+            if (i == 0) m_callback("play", 1);
+            else if (i == 1) m_callback("level_select", 0);
+            else if (i == 2) m_callback("settings", 0);
+            else if (i == 3) m_callback("quit", 0);
+        });
     } else if (state == GameStateId::LevelSelect) {
         int unlocked = SaveSystem::Instance().GetData().highestUnlockedLevel;
-        for (size_t i = 0; i < m_levelSelectButtons.size(); ++i) {
-            m_levelSelectButtons[i].Update(mousePos);
-            if (m_levelSelectButtons[i].IsClicked()) {
-                if (i == 0) m_callback("play", 1);
-                else if (i == 1 && unlocked >= 2) m_callback("play", 2);
-                else if (i == 2 && unlocked >= 3) m_callback("play", 3);
-                else if (i == 3) m_callback("main_menu", 0);
-            }
-        }
-    } else if (state == GameStateId::Paused) {
-        for (size_t i = 0; i < m_pauseButtons.size(); ++i) {
-            m_pauseButtons[i].Update(mousePos);
-            if (m_pauseButtons[i].IsClicked()) {
-                if (i == 0) m_callback("resume", 0);
-                else if (i == 1) m_callback("restart", 0);
-                else if (i == 2) m_callback("settings", 0);
-                else if (i == 3) m_callback("main_menu", 0);
-            }
-        }
-    } else if (state == GameStateId::GameOver) {
-        for (size_t i = 0; i < m_gameOverButtons.size(); ++i) {
-            m_gameOverButtons[i].Update(mousePos);
-            if (m_gameOverButtons[i].IsClicked()) {
-                if (i == 0) m_callback("retry_checkpoint", 0);
-                else if (i == 1) m_callback("restart", 0);
-                else if (i == 2) m_callback("main_menu", 0);
-            }
-        }
-    } else if (state == GameStateId::LevelComplete) {
-        for (size_t i = 0; i < m_levelCompleteButtons.size(); ++i) {
-            m_levelCompleteButtons[i].Update(mousePos);
-            if (m_levelCompleteButtons[i].IsClicked()) {
-                if (i == 0) m_callback("next_level", 0);
-                else if (i == 1) m_callback("level_select", 0);
-                else if (i == 2) m_callback("main_menu", 0);
-            }
-        }
-    } else if (state == GameStateId::Victory) {
-        for (size_t i = 0; i < m_victoryButtons.size(); ++i) {
-            m_victoryButtons[i].Update(mousePos);
-            if (m_victoryButtons[i].IsClicked()) {
+        updateButtonGroup(m_levelSelectButtons, [this, unlocked](size_t i) {
+            if (i < 5) {
+                int targetLvl = static_cast<int>(i + 1);
+                if (targetLvl <= unlocked) {
+                    m_callback("play", targetLvl);
+                }
+            } else if (i == 5) {
                 m_callback("main_menu", 0);
             }
-        }
+        });
+    } else if (state == GameStateId::Paused) {
+        updateButtonGroup(m_pauseButtons, [this](size_t i) {
+            if (i == 0) m_callback("resume", 0);
+            else if (i == 1) m_callback("restart", 0);
+            else if (i == 2) m_callback("settings", 0);
+            else if (i == 3) m_callback("main_menu", 0);
+        });
+    } else if (state == GameStateId::GameOver) {
+        updateButtonGroup(m_gameOverButtons, [this](size_t i) {
+            if (i == 0) m_callback("retry_checkpoint", 0);
+            else if (i == 1) m_callback("restart", 0);
+            else if (i == 2) m_callback("main_menu", 0);
+        });
+    } else if (state == GameStateId::LevelComplete) {
+        updateButtonGroup(m_levelCompleteButtons, [this](size_t i) {
+            if (i == 0) m_callback("next_level", 0);
+            else if (i == 1) m_callback("level_select", 0);
+            else if (i == 2) m_callback("main_menu", 0);
+        });
+    } else if (state == GameStateId::Victory) {
+        updateButtonGroup(m_victoryButtons, [this](size_t) {
+            m_callback("main_menu", 0);
+        });
     } else if (state == GameStateId::Settings) {
         auto& cfg = GetGameConfig();
         if (m_masterSlider) {
@@ -145,21 +165,18 @@ void MenuManager::Update(GameStateId state, Vector2 mousePos) {
             cfg.sfxVolume = m_sfxSlider->GetValue();
         }
 
-        for (size_t i = 0; i < m_settingsButtons.size(); ++i) {
-            m_settingsButtons[i].Update(mousePos);
-            if (m_settingsButtons[i].IsClicked()) {
-                if (i == 0) {
-                    cfg.screenShakeEnabled = !cfg.screenShakeEnabled;
-                    InitSettings();
-                } else if (i == 1) {
-                    cfg.debugHitboxes = !cfg.debugHitboxes;
-                    InitSettings();
-                } else if (i == 2) {
-                    SaveSystem::Instance().Save();
-                    m_callback("back", 0);
-                }
+        updateButtonGroup(m_settingsButtons, [this, &cfg](size_t i) {
+            if (i == 0) {
+                cfg.screenShakeEnabled = !cfg.screenShakeEnabled;
+                InitSettings();
+            } else if (i == 1) {
+                cfg.debugHitboxes = !cfg.debugHitboxes;
+                InitSettings();
+            } else if (i == 2) {
+                SaveSystem::Instance().Save();
+                m_callback("back", 0);
             }
-        }
+        });
     }
 }
 
@@ -179,13 +196,13 @@ void MenuManager::Draw(GameStateId state) const {
         DrawControlsOverlay();
     } else if (state == GameStateId::LevelSelect) {
         DrawRectangle(0, 0, 640, 360, Color{ 16, 14, 24, 255 });
-        DrawText("LEVEL SELECT", 240, 70, 24, GOLD);
+        DrawText("LEVEL SELECT", 250, 45, 24, GOLD);
 
         int unlocked = SaveSystem::Instance().GetData().highestUnlockedLevel;
         for (size_t i = 0; i < m_levelSelectButtons.size(); ++i) {
             m_levelSelectButtons[i].Draw();
-            if (i < 3 && static_cast<int>(i + 1) > unlocked) {
-                DrawText("[LOCKED]", 430, static_cast<int>(138 + i * 42), 12, RED);
+            if (i < 5 && static_cast<int>(i + 1) > unlocked) {
+                DrawText("[LOCKED]", 440, static_cast<int>(96 + i * 34), 11, RED);
             }
         }
     } else if (state == GameStateId::Paused) {
@@ -200,8 +217,8 @@ void MenuManager::Draw(GameStateId state) const {
         DrawControlsOverlay();
     } else if (state == GameStateId::GameOver) {
         DrawRectangle(0, 0, 640, 360, Color{ 40, 10, 15, 210 });
-        DrawText("EMBER EXTINGUISHED", 175, 90, 26, RED);
-        DrawText("You were defeated in battle.", 230, 130, 13, LIGHTGRAY);
+        DrawText("EMBER EXTINGUISHED", 175, 80, 26, RED);
+        DrawText("You were consumed by the rift hazards.", 205, 120, 13, LIGHTGRAY);
 
         for (const auto& btn : m_gameOverButtons) {
             btn.Draw();
