@@ -54,7 +54,11 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release -j 2 > build.log 2>&1 || (cat build.log && exit 1)
+          if ! cmake --build build --config Release -j 2 2>&1 | tee build.log; then
+            MSG=$(tail -n 15 build.log | tr '\n' ' ')
+            echo "::error title=BuildFailure::$MSG"
+            exit 1
+          fi
 
       - name: Run Unit Tests
         run: |
