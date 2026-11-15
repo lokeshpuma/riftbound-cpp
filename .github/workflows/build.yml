@@ -54,8 +54,13 @@ jobs:
 
       - name: Build
         run: |
-          set -o pipefail
-          cmake --build build --config Release -j 2 2>&1 | tee build.log
+          if ! cmake --build build --config Release -j 2 2>&1 | tee build.log; then
+            ERR_MSG=$(grep -iE "error:|fatal error:" build.log | head -n 10 | tr '\n' ' | ')
+            echo "::error::Build Failed: $ERR_MSG"
+            echo "--- LAST 50 LINES ---"
+            tail -n 50 build.log
+            exit 1
+          fi
 
       - name: Run Unit Tests
         run: |
