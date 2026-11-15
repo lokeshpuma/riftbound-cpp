@@ -54,7 +54,7 @@ jobs:
 
       - name: Build
         run: |
-          if ! cmake --build build --config Release -j 2 2>&1 | tee build.log; then
+          if ! cmake --build build --config Release --target riftbound riftbound_tests -j 2 2>&1 | tee build.log; then
             ERR_MSG=$(grep -iE "error:|fatal error:" build.log | head -n 10 | tr '\n' ' | ')
             echo "::error::Build Failed: $ERR_MSG"
             echo "--- LAST 50 LINES ---"
@@ -64,4 +64,4 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          ./build/riftbound_tests
+          ctest --test-dir build -C Release --output-on-failure

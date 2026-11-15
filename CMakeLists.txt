@@ -135,5 +135,5 @@ if(BUILD_TESTING AND NOT EMSCRIPTEN)
         tests/test_progression.cpp
     )
     target_link_libraries(riftbound_tests PRIVATE riftbound_core)
-    add_test(NAME AllTests COMMAND riftbound_tests)
+    add_test(NAME AllTests COMMAND $<TARGET_FILE:riftbound_tests>)
 endif()
