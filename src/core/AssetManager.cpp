@@ -174,8 +174,9 @@ Texture2D AssetManager::GenerateTileTexture() {
 
     // Tile 2 (32,0): Dungeon Brick
     ImageDrawRectangle(&img, 32, 0, 32, 32, Color{ 55, 50, 60, 255 });
-    ImageDrawRectangleLines(&img, 32, 0, 32, 16, Color{ 35, 30, 40, 255 });
-    ImageDrawRectangleLines(&img, 32, 16, 32, 16, Color{ 35, 30, 40, 255 });
+    ImageDrawLine(&img, 32, 0, 63, 0, Color{ 35, 30, 40, 255 });
+    ImageDrawLine(&img, 32, 16, 63, 16, Color{ 35, 30, 40, 255 });
+    ImageDrawLine(&img, 32, 31, 63, 31, Color{ 35, 30, 40, 255 });
     ImageDrawLine(&img, 48, 0, 48, 16, Color{ 35, 30, 40, 255 });
     ImageDrawLine(&img, 40, 16, 40, 32, Color{ 35, 30, 40, 255 });
 
