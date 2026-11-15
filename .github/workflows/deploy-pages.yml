@@ -1,0 +1,70 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-wasm:
+    name: Build WebAssembly
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.64
+
+      - name: Verify Emscripten
+        run: |
+          emcc --version
+
+      - name: Configure CMake for Web
+        run: |
+          emcmake cmake -B build-web \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPLATFORM=Web \
+            -DBUILD_TESTING=OFF
+
+      - name: Build Web Target
+        run: |
+          cmake --build build-web --config Release -j 4
+
+      - name: Stage Artifacts for Pages
+        run: |
+          mkdir -p dist
+          # Copy generated web application files
+          cp build-web/index.html dist/index.html
+          cp build-web/index.js dist/index.js
+          cp build-web/index.wasm dist/index.wasm
+          if [ -f build-web/index.data ]; then cp build-web/index.data dist/index.data; fi
+          if [ -d assets ]; then cp -r assets dist/; fi
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
