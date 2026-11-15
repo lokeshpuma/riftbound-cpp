@@ -55,7 +55,11 @@ jobs:
       - name: Build
         run: |
           cmake --build build --config Release -j 2
-          cmake --build build --config Release --target riftbound_tests -j 2
+          if ! cmake --build build --config Release --target riftbound_tests -j 2 2>&1 | tee test_build.log; then
+            ERR=$(grep -iE "error:|undefined reference" test_build.log | head -n 5 | tr '\n' ' | ')
+            echo "::error::Test Build Error: $ERR"
+            exit 1
+          fi
 
       - name: Run Unit Tests
         run: |

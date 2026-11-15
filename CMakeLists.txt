@@ -99,7 +99,10 @@ endif()
 
 # Main executable target
 add_executable(riftbound src/main.cpp)
-target_link_libraries(riftbound PRIVATE riftbound_core)
+target_link_libraries(riftbound PRIVATE riftbound_core raylib)
+if(NOT EMSCRIPTEN AND UNIX AND NOT APPLE)
+    target_link_libraries(riftbound PRIVATE m pthread dl)
+endif()
 
 # Target-specific properties for Web / Native
 if(EMSCRIPTEN)
@@ -134,6 +137,9 @@ if(BUILD_TESTING AND NOT EMSCRIPTEN)
         tests/test_combat.cpp
         tests/test_progression.cpp
     )
-    target_link_libraries(riftbound_tests PRIVATE riftbound_core)
+    target_link_libraries(riftbound_tests PRIVATE riftbound_core raylib)
+    if(UNIX AND NOT APPLE)
+        target_link_libraries(riftbound_tests PRIVATE m pthread dl)
+    endif()
     add_test(NAME AllTests COMMAND riftbound_tests)
 endif()
