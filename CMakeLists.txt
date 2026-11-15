@@ -137,6 +137,9 @@ if(BUILD_TESTING AND NOT EMSCRIPTEN)
         tests/test_combat.cpp
         tests/test_progression.cpp
     )
+    set_target_properties(riftbound_tests PROPERTIES
+        OUTPUT_NAME "riftbound_tests"
+    )
     target_link_libraries(riftbound_tests PRIVATE riftbound_core raylib)
     if(UNIX AND NOT APPLE)
         target_link_libraries(riftbound_tests PRIVATE m pthread dl)

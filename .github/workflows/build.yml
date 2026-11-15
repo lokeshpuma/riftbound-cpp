@@ -54,13 +54,15 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release -j 2
-          if ! cmake --build build --config Release --target riftbound_tests -j 2 2>&1 | tee test_build.log; then
-            ERR=$(grep -iE "error:|undefined reference" test_build.log | head -n 5 | tr '\n' ' | ')
-            echo "::error::Test Build Error: $ERR"
-            exit 1
-          fi
+          cmake --build build --config Release -j 2 > build.log 2>&1 || (cat build.log && exit 1)
 
       - name: Run Unit Tests
         run: |
           ctest --test-dir build -C Release --output-on-failure
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-failure-${{ matrix.os }}
+          path: build.log
